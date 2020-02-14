@@ -3,6 +3,6 @@ This set of pgbench scripts is designed to do a more realistic "web" workload, o
 An example of how to use it would be:
 
 ```
-pgbench -s 100 -T 900 -c 16 -j 4 -P -r \
+pgbench -s 100 -T 900 -c 16 -j 4 -P 30 -r \
  -f update.bench@1 -f read_branch.bench@3 -f read_account.bench@6 benchdb
 ```

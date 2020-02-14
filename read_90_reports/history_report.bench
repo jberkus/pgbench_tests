@@ -1,0 +1,24 @@
+\set bid random(1, 1 * :scale)
+WITH tstats AS (
+  SELECT tel.tid, tel.bid, count(*) as mcount, sum(delta) as mtot,
+    avg(delta) as mavg
+  FROM pgbench_tellers tel JOIN pgbench_history hist
+    ON tel.tid = hist.tid
+  WHERE tel.bid = 1
+    AND mtime > ( now() - interval '30 seconds' )
+  GROUP BY tel.tid, tel.bid
+)
+SELECT tstats.tid, branch.bid, bbalance,
+  tstats.mcount, tstats.mtot, tstats.mavg,
+  ostats.ocount, ostats.otot, ostats.oavg,
+  rank
+FROM pgbench_branches as branch
+  JOIN tstats ON branch.bid = tstats.bid
+  JOIN (
+    SELECT bid, sum(mcount) as ocount, sum(mtot) as otot,
+      sum(mtot)/sum(mcount) as oavg
+    FROM tstats
+    GROUP BY bid
+  ) as ostats
+  ON branch.bid = ostats.bid
+ORDER BY tstats.mtot DESC, tstats.mcount DESC LIMIT 10;
