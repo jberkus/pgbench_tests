@@ -1,8 +1,10 @@
 \set bid random(1, 1 * :scale)
 WITH ttotals AS (
-  SELECT count(*) as teller_count,
+  SELECT bid,
+    count(*) as teller_count,
     sum(tbalance) as teller_bal
   FROM pgbench_tellers
+  GROUP BY bid
 )
 SELECT count(aid), sum(abalance), avg(abalance),
   bbalance, teller_count, teller_bal
@@ -11,4 +13,5 @@ FROM pgbench_branches branches
     ON branches.bid = accounts.bid
   JOIN ttotals
     ON branches.bid = ttotals.bid
-WHERE bid = :bid;
+WHERE branches.bid = :bid
+GROUP BY bbalance, teller_count, teller_bal;
